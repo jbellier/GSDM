@@ -10,12 +10,13 @@
 ##    moving_mean()
 ##    compute_relDiff_C_av()
 ##    get_clim_bootstrap()
-##    
+##    coord_equallySpaced()
 ##    
 ##    
 ##    
 ##    
 
+import numpy as np
 from numba import njit
 
 
@@ -352,3 +353,24 @@ def get_clim_bootstrap(Nfine_fields, B, seed=np.random.randint(1,100000,1)[0]):
         clim_bootstrap[b,:,:] = np.mean(Nfine_fields[id_rdmBoot,:,:], axis=0)
 
     return clim_bootstrap
+
+
+
+
+## Function that reads a vector of coordinates (lat or lon), and if the coordinates are not exactly equally spaced, it returns
+##    a new vectors of coordinates that are equally spaced, and which difference with the original coordinates is minimal.
+#----------------------------------------------------------------
+def coord_equallySpaced(vec_coord):
+    
+    def coord_diff(start_and_resol, vec_coord):
+        start, resol = start_and_resol[0], start_and_resol[1]
+        N = vec_coord.size
+        return np.mean(np.square(vec_coord - np.arange(start, start + (N-1)*resol+1e-10, resol)))
+    
+    if np.unique(np.diff(vec_coord)).size == 1:
+        return vec_coord
+    
+    par_opt = minimize(coord_diff, [vec_coord[0], np.unique(np.diff(vec_coord))[0]], vec_coord).x
+    vec_coord_new = np.arange(par_opt[0], par_opt[0]+(vec_coord.size-1)*par_opt[1]+1e-10, par_opt[1])
+
+    return vec_coord_new
