@@ -1,4 +1,6 @@
 from scipy.interpolate import interp1d
+import math
+
 
 
 ## Function that computes the gridded, stratified variogram of a fine-scale field.
