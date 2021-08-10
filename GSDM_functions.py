@@ -4,6 +4,13 @@
 ##    GSDM_lgD_njit()   -> models and parameters can be specified for each fine-scale pixel
 
 
+
+import numpy as np
+from numba import njit
+from numpy.random import lognormal, randint
+
+
+
 @njit
 def GSDM_njit(modelE, modelS, parE, parS, coarse_field, closest_cell, ASP, ADP, SVP, relDiff_C_av, mask_field, rs_pred3_spVar='no_pred3', N_iter=10, seed=np.random.randint(1,100000,1)[0]):
 
@@ -213,13 +220,11 @@ def GSDM_njit(modelE, modelS, parE, parS, coarse_field, closest_cell, ASP, ADP, 
 ##    it takes a list of models and parameters, as well as a field ('field_parDomain') that specifies for each pixel which model/parameter to use.
 #----------------------------------------------------------------
 @njit
-def GSDM_lgD_njit(DmodelE, DmodelS, DparE, DparS, Drs_pred3_spVar, field_parDomain, coarse_field, closest_cell, ASP, ADP, SVP, relDiff_C_av, mask_field, maskOro_field, N_iter=10, seed=np.random.randint(1,100000,1)[0]):
+def GSDM_lgD_njit(DmodelE, DmodelS, DparE, DparS, Drs_pred3_spVar, field_parDomain, coarse_field, closest_cell, ASP, ADP, SVP, relDiff_C_av, mask_field, N_iter=10, seed=np.random.randint(1,100000,1)[0]):
 
     ## MODIFICATIONS IN THIS NEW VERSION OF GSDM_lgD_njit:        -> NewOro5
-    ##     - maskOro_field is passed as an additional argument. However it's not used in this current version of GSDM_lgD_njit, so it coould be removed
     ##     - The relative difference (relDiff_C_av) of the clim at i,j and the averagged clim over a L=2 window is now given in argument, in place of clim and clim_std.
     ##     - The orographic adjustment is done at the end of each Gibbs sampling iteration, rather than being included in E
-    ##     - We return P_enh_arr in addition to R
     
     np.random.seed(seed)
         
@@ -430,4 +435,4 @@ def GSDM_lgD_njit(DmodelE, DmodelS, DparE, DparS, Drs_pred3_spVar, field_parDoma
                 R_1d[pix] = coeff * R_1d[pix]
         R = R_1d.reshape(nya,nxa)
         
-    return(R, P_enh_arr)
+    return(R)   #return(R, P_enh_arr)
